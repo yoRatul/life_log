@@ -1,0 +1,258 @@
+import java.time.LocalDateTime;
+
+public class Activity {
+    private String description;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+
+    public Activity(String description, LocalDateTime startTime, LocalDateTime endTime) {
+        this.description = description;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    @Override
+    public String toString() {
+        return "Activity{" +
+                "description='" + description + '\'' +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                '}';
+    }
+}
+
+import java.time.LocalDateTime;
+
+public class Expense {
+    private String description;
+    private double amount;
+    private LocalDateTime time;
+
+    public Expense(String description, double amount, LocalDateTime time) {
+        this.description = description;
+        this.amount = amount;
+        this.time = time;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public LocalDateTime getTime() {
+        return time;
+    }
+
+    @Override
+    public String toString() {
+        return "Expense{" +
+                "description='" + description + '\'' +
+                ", amount=" + amount +
+                ", time=" + time +
+                '}';
+    }
+}
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+public class DailyLog {
+    private LocalDate date;
+    private List<Activity> activities;
+    private List<Expense> expenses;
+
+    public DailyLog(LocalDate date) {
+        this.date = date;
+        this.activities = new ArrayList<>();
+        this.expenses = new ArrayList<>();
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void addActivity(Activity activity) {
+        activities.add(activity);
+    }
+
+    public void addExpense(Expense expense) {
+        expenses.add(expense);
+    }
+
+    public String generateSummary() {
+        StringBuilder summary = new StringBuilder("Summary for " + date + ":\n");
+
+        summary.append("Activities:\n");
+        for (Activity activity : activities) {
+            summary.append(activity).append("\n");
+        }
+
+        summary.append("Expenses:\n");
+        double totalExpense = 0;
+        for (Expense expense : expenses) {
+            summary.append(expense).append("\n");
+            totalExpense += expense.getAmount();
+        }
+        summary.append("Total Expenses: ").append(totalExpense).append("\n");
+
+        return summary.toString();
+    }
+}
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+public class LifeLog {
+    private List<DailyLog> dailyLogs;
+
+    public LifeLog() {
+        this.dailyLogs = new ArrayList<>();
+    }
+
+    public void addDailyLog(DailyLog dailyLog) {
+        dailyLogs.add(dailyLog);
+    }
+
+    public DailyLog getDailyLog(LocalDate date) {
+        for (DailyLog dailyLog : dailyLogs) {
+            if (dailyLog.getDate().equals(date)) {
+                return dailyLog;
+            }
+        }
+        return null;
+    }
+
+    public String generateOverallSummary() {
+        StringBuilder summary = new StringBuilder("Overall Summary:\n");
+        for (DailyLog dailyLog : dailyLogs) {
+            summary.append(dailyLog.generateSummary()).append("\n");
+        }
+        return summary.toString();
+    }
+}
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Scanner;
+
+public class LifeLogApp {
+    private static LifeLog lifeLog = new LifeLog();
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        boolean running = true;
+
+        while (running) {
+            System.out.println("LifeLog Menu:");
+            System.out.println("1. Add Activity");
+            System.out.println("2. Add Expense");
+            System.out.println("3. View Daily Summary");
+            System.out.println("4. View Overall Summary");
+            System.out.println("5. Exit");
+            System.out.print("Choose an option: ");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine();  // Consume newline
+
+            switch (choice) {
+                case 1:
+                    addActivity(scanner);
+                    break;
+                case 2:
+                    addExpense(scanner);
+                    break;
+                case 3:
+                    viewDailySummary(scanner);
+                    break;
+                case 4:
+                    viewOverallSummary();
+                    break;
+                case 5:
+                    running = false;
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+
+        scanner.close();
+    }
+
+    private static void addActivity(Scanner scanner) {
+        System.out.print("Enter date (YYYY-MM-DD): ");
+        LocalDate date = LocalDate.parse(scanner.nextLine());
+
+        System.out.print("Enter description: ");
+        String description = scanner.nextLine();
+
+        System.out.print("Enter start time (YYYY-MM-DD): ");
+        LocalDateTime startTime = LocalDateTime.parse(scanner.nextLine());
+
+        System.out.print("Enter end time (YYYY-MM-DD): ");
+        LocalDateTime endTime = LocalDateTime.parse(scanner.nextLine());
+
+        DailyLog dailyLog = lifeLog.getDailyLog(date);
+        if (dailyLog == null) {
+            dailyLog = new DailyLog(date);
+            lifeLog.addDailyLog(dailyLog);
+        }
+
+        dailyLog.addActivity(new Activity(description, startTime, endTime));
+    }
+
+    private static void addExpense(Scanner scanner) {
+        System.out.print("Enter date (YYYY-MM-DD): ");
+        LocalDate date = LocalDate.parse(scanner.nextLine());
+
+        System.out.print("Enter description: ");
+        String description = scanner.nextLine();
+
+        System.out.print("Enter amount: ");
+        double amount = scanner.nextDouble();
+        scanner.nextLine();  // Consume newline
+
+        System.out.print("Enter time (YYYY-MM-DD): ");
+        LocalDateTime time = LocalDateTime.parse(scanner.nextLine());
+
+        DailyLog dailyLog = lifeLog.getDailyLog(date);
+        if (dailyLog == null) {
+            dailyLog = new DailyLog(date);
+            lifeLog.addDailyLog(dailyLog);
+        }
+
+        dailyLog.addExpense(new Expense(description, amount, time));
+    }
+
+    private static void viewDailySummary(Scanner scanner) {
+        System.out.print("Enter date (YYYY-MM-DD): ");
+        LocalDate date = LocalDate.parse(scanner.nextLine());
+
+        DailyLog dailyLog = lifeLog.getDailyLog(date);
+        if (dailyLog != null) {
+            System.out.println(dailyLog.generateSummary());
+        } else {
+            System.out.println("No entries for this date.");
+        }
+    }
+
+    private static void viewOverallSummary() {
+        System.out.println(lifeLog.generateOverallSummary());
+    }
+}
